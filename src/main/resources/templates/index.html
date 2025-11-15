@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Vagas de Emprego - Encontre seu próximo trabalho</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        /* Estilização da seção hero com gradiente */
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 5rem 0;
+        }
+        /* Efeitos de hover nas cards de vaga */
+        .vaga-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: none;
+            border-radius: 10px;
+        }
+        .vaga-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        /* Centralização melhorada */
+        .centered-section {
+            text-align: center;
+        }
+        .hero-icon {
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Seção Hero - Primeira impressão do site -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row justify-content-center centered-section">
+                <div class="col-lg-8">
+                    <!-- Ícone centralizado acima do texto -->
+                    <div class="hero-icon">
+                        <i class="bi bi-briefcase display-1 opacity-75"></i>
+                    </div>
+                    <h1 class="display-5 fw-bold mb-3">Encontre a vaga perfeita para você</h1>
+                    <p class="lead mb-4">Conectamos talentos incríveis com oportunidades extraordinárias</p>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <a href="#vagas" class="btn btn-light btn-lg">Ver Vagas</a>
+                        <a href="/login" class="btn btn-outline-light btn-lg">Área do Candidato</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção de Vagas em Destaque -->
+    <section id="vagas" class="py-5">
+        <div class="container">
+            <div class="row mb-4">
+                <div class="col-12 centered-section">
+                    <h2 class="mb-3">Vagas em Destaque</h2>
+                    <!-- Contador de vagas disponíveis -->
+                    <p class="text-muted" 
+                       th:text="'Total de ' + ${#lists.size(vagas)} + ' vagas disponíveis'"></p>
+                </div>
+            </div>
+
+            <!-- Mensagem quando não há vagas -->
+            <div th:if="${#lists.isEmpty(vagas)}" class="text-center py-5">
+                <i class="bi bi-briefcase display-1 text-muted"></i>
+                <h4 class="mt-3 text-muted">Nenhuma vaga disponível no momento</h4>
+                <p class="text-muted">Volte em breve para conferir novas oportunidades!</p>
+            </div>
+
+            <!-- Grid de vagas -->
+            <div class="row justify-content-center">
+                <!-- Loop através das vagas disponíveis -->
+                <div th:each="vaga : ${vagas}" class="col-lg-4 col-md-6 mb-4">
+                    <div class="card vaga-card h-100">
+                        <div class="card-body">
+                            <h5 th:text="${vaga.titulo}" class="card-title">Desenvolvedor Java</h5>
+                            <h6 class="card-subtitle mb-2 text-primary" th:text="${vaga.empresa.nomeFantasia}">
+                                Empresa
+                            </h6>
+                            <p class="card-text text-muted small" th:text="${vaga.local}">Localização</p>
+                            <p class="card-text" th:text="${#strings.abbreviate(vaga.descricao, 120)}">
+                                Descrição resumida da vaga...
+                            </p>
+                            
+                            <div class="mt-3">
+                                <span class="badge bg-light text-dark">
+                                    <i class="bi bi-calendar me-1"></i>
+                                    Publicada recentemente
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <div class="d-grid gap-2">
+                                <!-- Link para ver detalhes da vaga -->
+                                <a th:href="@{/vaga/} + ${vaga.id}" class="btn btn-primary">
+                                    <i class="bi bi-eye me-1"></i> Ver Detalhes
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Seção Call to Action -->
+    <section class="bg-light py-5">
+        <div class="container">
+            <div class="row justify-content-center centered-section">
+                <div class="col-lg-8">
+                    <h3 class="mb-4">Comece sua jornada agora</h3>
+                    <p class="text-muted mb-4">Junte-se à nossa plataforma e descubra oportunidades incríveis</p>
+                    
+                    <div class="row justify-content-center">
+                        <div class="col-md-5 mb-4">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body text-center p-4">
+                                    <i class="bi bi-person-check display-4 text-primary mb-3"></i>
+                                    <h5>Para Candidatos</h5>
+                                    <p class="text-muted mb-3">Encontre oportunidades que combinam com seu perfil e dê o próximo passo na sua carreira</p>
+                                    <a href="/login" class="btn btn-primary">Acessar como Candidato</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-5 mb-4">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body text-center p-4">
+                                    <i class="bi bi-building display-4 text-success mb-3"></i>
+                                    <h5>Para Empresas</h5>
+                                    <p class="text-muted mb-3">Encontre os talentos que sua empresa precisa e construa uma equipe de sucesso</p>
+                                    <a href="/login" class="btn btn-success">Acessar como Empresa</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Sistema de Vagas</h5>
+                    <p class="mb-0">Conectando talentos e oportunidades</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <p class="mb-0">&copy; 2024 Sistema de Vagas. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

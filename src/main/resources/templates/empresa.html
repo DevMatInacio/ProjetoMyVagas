@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lista de Empresas</title>
+<!-- Importação do Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <!-- Cabeçalho da página -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3">Empresas</h1>
+            <a href="/" class="btn btn-outline-secondary btn-sm">Voltar</a>
+        </div>
+
+        <!-- Mensagens do sistema -->
+        <div th:if="${msg != null}" class="alert alert-info" th:text="${msg}"></div>
+
+        <!-- Tabela de empresas cadastradas -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead class="table-secondary">
+                        <tr>
+                            <th style="width: 70px">ID</th>
+                            <th>Nome</th>
+                            <th>E-mail</th>
+                            <th>Senha</th>
+                            <th>Nome Fantasia</th>
+                            <th style="width: 160px" class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Loop através da lista de empresas -->
+                        <tr th:each="emp : ${empresas}">
+                            <td th:text="${emp.id}">1</td>
+                            <td th:text="${emp.nome}">Empresa LTDA</td>
+                            <td th:text="${emp.email}">empresa@email.com</td>
+                            <td>••••••</td> <!-- Senha oculta por segurança -->
+                            <td th:text="${emp.nomeFantasia}">Fantasia</td>
+                            <!-- Botões de ação -->
+                            <td class="text-center">
+                                <a th:href="@{'/empresas/editar/' + ${emp.id}}" 
+                                   class="btn btn-sm btn-primary">Editar</a>
+                                <a th:href="@{'/empresas/deletar/' + ${emp.id}}" 
+                                   class="btn btn-sm btn-danger ms-1">Excluir</a>
+                            </td>
+                        </tr>
+
+                        <!-- Mensagem quando não há empresas -->
+                        <tr th:if="${#lists.isEmpty(empresas)}">
+                            <td colspan="6" class="text-center py-4">
+                                Nenhuma empresa encontrada.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Formulário para cadastrar nova empresa -->
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="h5 mb-3">Cadastrar nova empresa</h2>
+                <form th:action="@{/empresas}" method="post">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Nome</label>
+                            <input type="text" name="nome" class="form-control" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">E-mail</label>
+                            <input type="email" name="email" class="form-control" required />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Senha</label>
+                            <input type="password" name="senha" class="form-control" required />
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label">Nome Fantasia</label>
+                            <input type="text" name="nomeFantasia" class="form-control" required />
+                        </div>
+
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-success">Salvar empresa</button>
+                            <button type="reset" class="btn btn-secondary ms-2">Limpar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalhes da Vaga</title>
+    <!-- Importação do Bootstrap CSS para estilização -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Importação de ícones do Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        /* Estilização personalizada para o cabeçalho da vaga */
+        .vaga-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        /* Garante que quebras de linha na descrição sejam preservadas */
+        .descricao-vaga {
+            white-space: pre-line;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- ========== CABEÇALHO DA PÁGINA ========== -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <!-- Botão voltar - usa JavaScript para voltar à página anterior -->
+                    <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Voltar
+                    </a>
+                    <!-- Título da página -->
+                    <h1 class="h4 mb-0">Detalhes da Vaga</h1>
+                    <!-- Elemento vazio para manter o alinhamento do flexbox -->
+                    <div></div>
+                </div>
+
+                <!-- ========== CARD PRINCIPAL COM DETALHES DA VAGA ========== -->
+                <div class="card shadow">
+                    <!-- Cabeçalho do card com gradiente -->
+                    <div class="card-header vaga-header py-4">
+                        <!-- Título da vaga (vindo do controller) -->
+                        <h2 class="h3 mb-2" th:text="${vaga.titulo}">Título da Vaga</h2>
+                        <!-- Empresa e localização (concatenados) -->
+                        <p class="mb-0" th:text="${vaga.empresa.nomeFantasia} + ' • ' + ${vaga.local}">
+                            Empresa • Localização
+                        </p>
+                    </div>
+                    
+                    <!-- Corpo do card com informações detalhadas -->
+                    <div class="card-body p-4">
+                        <!-- ========== SEÇÃO: INFORMAÇÕES PRINCIPAIS ========== -->
+                        <div class="row mb-4">
+                            <!-- Coluna: Informações da Empresa -->
+                            <div class="col-md-6">
+                                <h5><i class="bi bi-building text-primary"></i> Sobre a Empresa</h5>
+                                <!-- Razão Social da empresa -->
+                                <p class="mb-1">
+                                    <strong>Razão Social:</strong> 
+                                    <span th:text="${vaga.empresa.nome}">Nome da empresa</span>
+                                </p>
+                                <!-- Nome Fantasia da empresa -->
+                                <p class="mb-1">
+                                    <strong>Nome Fantasia:</strong> 
+                                    <span th:text="${vaga.empresa.nomeFantasia}">Nome fantasia</span>
+                                </p>
+                                <!-- Email da empresa -->
+                                <p class="mb-0">
+                                    <strong>Email:</strong> 
+                                    <span th:text="${vaga.empresa.email}">email@empresa.com</span>
+                                </p>
+                            </div>
+                            
+                            <!-- Coluna: Localização da Vaga -->
+                            <div class="col-md-6">
+                                <h5><i class="bi bi-geo-alt text-success"></i> Localização</h5>
+                                <!-- Local da vaga com fonte maior para destaque -->
+                                <p th:text="${vaga.local}" class="fs-5">São Paulo, SP</p>
+                            </div>
+                        </div>
+
+                        <!-- ========== SEÇÃO: DESCRIÇÃO DA VAGA ========== -->
+                        <div class="mb-4">
+                            <h5><i class="bi bi-file-text text-info"></i> Descrição da Vaga</h5>
+                            <!-- Área de descrição com fundo destacado -->
+                            <div class="bg-light p-3 rounded">
+                                <!-- 
+                                    Descrição completa da vaga 
+                                    white-space: pre-line preserva quebras de linha do texto
+                                -->
+                                <p th:text="${vaga.descricao}" class="mb-0 descricao-vaga">
+                                    Descrição completa da vaga será exibida aqui...
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- ========== SEÇÃO: AÇÕES DO USUÁRIO ========== -->
+                        <div class="border-top pt-4">
+                            <!-- 
+                                BLOCO 1: Usuário CANDIDATO logado 
+                                Mostra botão para candidatar-se à vaga
+                            -->
+                            <div th:if="${session.usuarioLogado != null and session.tipoUsuario == 'CANDIDATO'}">
+                                <!-- Formulário para enviar candidatura -->
+                                <form th:action="@{/candidato/candidatar}" method="post">
+                                    <!-- Campo hidden com o ID da vaga -->
+                                    <input type="hidden" name="vagaId" th:value="${vaga.id}">
+                                    <!-- Botão principal de ação -->
+                                    <button type="submit" class="btn btn-success btn-lg w-100">
+                                        <i class="bi bi-send-check"></i> Candidatar-se a esta Vaga
+                                    </button>
+                                </form>
+                            </div>
+                            
+                            <!-- 
+                                BLOCO 2: Usuário NÃO logado 
+                                Mostra alerta para fazer login
+                            -->
+                            <div th:if="${session.usuarioLogado == null}">
+                                <div class="alert alert-info text-center">
+                                    <h6>Interessado nesta vaga?</h6>
+                                    <!-- 
+                                        Link para login com redirecionamento para esta página após login
+                                        O redirect inclui o ID da vaga atual
+                                    -->
+                                    <a th:href="@{'/login?redirect=/vaga/' + ${vaga.id}}" class="btn btn-primary">
+                                        <i class="bi bi-box-arrow-in-right"></i> Faça login para se candidatar
+                                    </a>
+                                </div>
+                            </div>
+                            
+                            <!-- 
+                                NOTA: Não há bloco para empresas porque empresas não se candidatam a vagas
+                                Empresas só visualizam as candidaturas recebidas no seu dashboard
+                            -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Importação do JavaScript do Bootstrap para componentes interativos -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
