@@ -10,25 +10,40 @@
         background: linear-gradient(135deg, #007bff, #0056b3);
     }
 
-    .card-vaga:hover {
-        transform: translateY(-2px);
-        transition: transform 0.2s;
-    }
-
     .stats-card {
         border: none;
         border-radius: 10px;
     }
     
-    .alert {
-        margin-bottom: 1rem;
+    .card-vaga:hover {
+        transform: translateY(-2px);
+        transition: transform 0.2s;
+    }
+    
+    .status-badge {
+        font-size: 0.75em;
+        padding: 0.35em 0.65em;
+    }
+    
+    .bg-status-pendente { 
+        background-color: #fff3cd !important; 
+        color: #856404 !important; 
+    }
+    .bg-status-selecionado { 
+        background-color: #d1edff !important; 
+        color: #004085 !important; 
+    }
+    .bg-status-rejeitado { 
+        background-color: #f8d7da !important; 
+        color: #721c24 !important; 
     }
 </style>
 </head>
 <body>
+    <!-- Navbar específica para empresas -->
     <nav class="navbar navbar-expand-lg navbar-dark navbar-empresa">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="#">
+            <a class="navbar-brand fw-bold" th:href="@{/empresa/dashboard}">
                 <i class="bi bi-building me-2"></i> Área da Empresa
             </a>
             <div class="navbar-nav ms-auto">
@@ -43,16 +58,16 @@
     </nav>
 
     <div class="container py-4">
-        <!-- Mensagens do sistema - CORRIGIDO para usar Flash Attributes -->
-        <div th:if="${msg}" class="alert alert-success alert-dismissible fade show">
+        <!-- Mensagens do sistema -->
+        <div th:if="${param.msg}" class="alert alert-success alert-dismissible fade show">
             <i class="bi bi-check-circle me-2"></i>
-            <span th:text="${msg}"></span>
+            <span th:text="${param.msg}"></span>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
 
-        <div th:if="${erro}" class="alert alert-danger alert-dismissible fade show">
+        <div th:if="${param.erro}" class="alert alert-danger alert-dismissible fade show">
             <i class="bi bi-exclamation-triangle me-2"></i>
-            <span th:text="${erro}"></span>
+            <span th:text="${param.erro}"></span>
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
 
@@ -98,26 +113,19 @@
                     <div class="card-body">
                         <form th:action="@{/empresa/publicar-vaga}" method="post">
                             <div class="mb-3">
-                                <label class="form-label">Título da Vaga <span class="text-danger">*</span></label>
+                                <label class="form-label">Título da Vaga</label>
                                 <input type="text" name="titulo" class="form-control" 
-                                       placeholder="Ex: Desenvolvedor Java Pleno" required
-                                       th:value="${param.titulo}">
-                                <div class="form-text">Título claro e objetivo da vaga</div>
+                                       placeholder="Ex: Desenvolvedor Java Pleno" required>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Localização <span class="text-danger">*</span></label>
+                                <label class="form-label">Localização</label>
                                 <input type="text" name="local" class="form-control" 
-                                       placeholder="Ex: São Paulo - SP ou Remoto" required
-                                       th:value="${param.local}">
-                                <div class="form-text">Cidade, estado ou modalidade de trabalho</div>
+                                       placeholder="Ex: São Paulo - SP ou Remoto" required>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Descrição <span class="text-danger">*</span></label>
+                                <label class="form-label">Descrição</label>
                                 <textarea name="descricao" class="form-control" rows="3" 
-                                          placeholder="Descreva as responsabilidades, requisitos e benefícios da vaga..." 
-                                          required
-                                          th:text="${param.descricao}"></textarea>
-                                <div class="form-text">Detalhe as atividades e competências necessárias</div>
+                                          placeholder="Descreva a vaga..." required></textarea>
                             </div>
                             <button type="submit" class="btn btn-success w-100">
                                 <i class="bi bi-send-check me-2"></i> Publicar Vaga
@@ -170,8 +178,8 @@
                                         <p class="card-text small" 
                                            th:text="${#strings.abbreviate(vaga.descricao, 80)}"></p>
 
-                                        <!-- Badge com contador de candidatos -->
-                                        <span class="badge bg-info">
+                                        <!-- Contador de candidaturas para esta vaga -->
+                                        <span class="badge bg-info status-badge">
                                             <i class="bi bi-people"></i>
                                             <span th:text="${#lists.size(candidaturas.?[vaga.id == vaga.id])}">0</span>
                                             candidatos
@@ -185,7 +193,7 @@
                                         </a>
                                         <a th:href="@{/empresa/vaga/{id}/deletar(id=${vaga.id})}" 
                                            class="btn btn-outline-danger btn-sm ms-1"
-                                           onclick="return confirm('Tem certeza que deseja excluir esta vaga? Todas as candidaturas serão perdidas.')">
+                                           onclick="return confirm('Tem certeza que deseja excluir esta vaga?')">
                                             <i class="bi bi-trash"></i> Excluir
                                         </a>
                                     </div>
@@ -219,12 +227,13 @@
                                     <small class="text-muted" 
                                            th:text="${candidatura.vaga.titulo} + ' • ' + ${#temporals.format(candidatura.dataCandidatura, 'dd/MM/yyyy')}"></small>
                                     <br>
-                                    <small class="badge" 
-                                           th:classappend="${candidatura.status == 'PENDENTE'} ? 'bg-warning' : 
-                                                          ${candidatura.status == 'SELECIONADO'} ? 'bg-success' : 'bg-danger'"
-                                           th:text="${candidatura.status}">
-                                        Status
-                                    </small>
+                                    <!-- Status da candidatura com cores -->
+                                    <span th:switch="${candidatura.status}" class="status-badge">
+                                        <span th:case="'PENDENTE'" class="bg-status-pendente status-badge">PENDENTE</span>
+                                        <span th:case="'SELECIONADO'" class="bg-status-selecionado status-badge">SELECIONADO</span>
+                                        <span th:case="'REJEITADO'" class="bg-status-rejeitado status-badge">REJEITADO</span>
+                                        <span th:case="*" class="bg-secondary status-badge">DESCONHECIDO</span>
+                                    </span>
                                 </div>
                                 <a th:href="@{/empresa/vaga/{id}/candidaturas(id=${candidatura.vaga.id})}" 
                                    class="btn btn-outline-info btn-sm">
@@ -263,10 +272,10 @@
             });
             
             // Confirmação para excluir vaga
-            const deleteButtons = document.querySelectorAll('a[href*="/deletar/"]');
+            const deleteButtons = document.querySelectorAll('a[href*="/deletar"]');
             deleteButtons.forEach(button => {
                 button.addEventListener('click', function(e) {
-                    if (!confirm('Tem certeza que deseja excluir esta vaga? Todas as candidaturas relacionadas serão removidas permanentemente.')) {
+                    if (!confirm('Tem certeza que deseja excluir esta vaga? Todas as candidaturas relacionadas também serão removidas.')) {
                         e.preventDefault();
                     }
                 });
